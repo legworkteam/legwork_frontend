@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #f9f9f8;
+  --color-ink: #1a1c1c;
+  --color-gold: #885200;
+  --color-card: #e9e9e7;
+  --color-taupe: #cec7c1;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ivory);
+  color: var(--color-ink);
+}
+
+@keyframes scan-line {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(200px);
+  }
+}

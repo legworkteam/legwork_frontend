@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(npm exec *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/tailwindcss/package.json'\\).version, require\\('./node_modules/react-router-dom/package.json'\\).version\\)\")",
+      "Bash(git mv *)",
+      "Bash(curl -sf http://localhost:5173/)",
+      "Bash(curl -sf \"https://lh3.googleusercontent.com/aida-public/AB6AXuAcxfjWWHmBqK1Bou6On_ZyqhpXR0ZDd1cqQj5tQRCehVTnqEimVZWtDVHykvRIQInOLtRuU17I2LxUS8c9n8PCMKwP-mbK7qTseRUoVM0tF6hhIvgjngevuIGtYHlLolqC5m1mFuu9DTZGDdNiN6yK6rnyktGXo7SK7uMBBdaudt1nK3jt7CEHKFn3CXLxI4O3KeFaUkG4VQO7hOCxICd9XW-IIa9ZuCejnlR4c5OSPuhGnbAtwcif7zbUKnhkEl1-lEA\" -o src/assets/scan/boutique-bg.png)",
+      "Bash(node -e \"console.log\\(require\\('sharp'\\)\\)\")"
+    ]
+  }
+}
