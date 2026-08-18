@@ -1,0 +1,1022 @@
+[
+  {
+    "id": 1,
+    "productCode": "MWS 6SAF29 BG001",
+    "barcode": "0181590830166",
+    "manufacturedAt": "2023.04",
+    "name": "Stark Backpack Mini",
+    "category": "Backpack",
+    "price": 320000,
+    "description": "Stark Backpack Mini 프로토타입용 상품입니다.",
+    "image": "/images/products/stark-backpack-mini.png",
+    "stock": 45,
+    "sales": 158,
+    "likes": 260,
+    "rating": 4.9,
+    "reviewCount": 81,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Backpack",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "클래식",
+      "캐주얼",
+      "여행",
+      "겨울"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "productCode": "MWS 4SAF15 NV002",
+    "barcode": "2462819482199",
+    "manufacturedAt": "2025.04",
+    "name": "Liz Reversible Shopper",
+    "category": "Tote Bag",
+    "price": 890000,
+    "description": "Liz Reversible Shopper 프로토타입용 상품입니다.",
+    "image": "/images/products/liz-reversible-shopper.png",
+    "stock": 16,
+    "sales": 190,
+    "likes": 929,
+    "rating": 4.5,
+    "reviewCount": 65,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#ToteBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "봄",
+      "클래식",
+      "가을",
+      "모던"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "productCode": "MWS 9SAF64 WH003",
+    "barcode": "7975432319487",
+    "manufacturedAt": "2024.12",
+    "name": "Aren Crossbody",
+    "category": "Crossbody",
+    "price": 1090000,
+    "description": "Aren Crossbody 프로토타입용 상품입니다.",
+    "image": "/images/products/aren-crossbody.png",
+    "stock": 28,
+    "sales": 205,
+    "likes": 274,
+    "rating": 4.6,
+    "reviewCount": 157,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Crossbody",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "스트릿",
+      "모던",
+      "봄",
+      "클래식"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "productCode": "MWS 7SAF15 BK004",
+    "barcode": "8955597971147",
+    "manufacturedAt": "2025.11",
+    "name": "Patricia Shoulder",
+    "category": "Shoulder Bag",
+    "price": 320000,
+    "description": "Patricia Shoulder 프로토타입용 상품입니다.",
+    "image": "/images/products/patricia-shoulder.png",
+    "stock": 13,
+    "sales": 237,
+    "likes": 918,
+    "rating": 4.7,
+    "reviewCount": 197,
+    "isBestSeller": true,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#ShoulderBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "가을",
+      "포멀",
+      "여행",
+      "모던"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "productCode": "MWS 6SAF12 BG005",
+    "barcode": "5291703423667",
+    "manufacturedAt": "2023.03",
+    "name": "Fursten Belt Bag",
+    "category": "Belt Bag",
+    "price": 1090000,
+    "description": "Fursten Belt Bag 프로토타입용 상품입니다.",
+    "image": "/images/products/fursten-belt-bag.png",
+    "stock": 35,
+    "sales": 190,
+    "likes": 484,
+    "rating": 4.9,
+    "reviewCount": 259,
+    "isBestSeller": false,
+    "isNew": true,
+    "hashtags": [
+      "#MCM",
+      "#BeltBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "여행",
+      "겨울",
+      "포멀",
+      "모던"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "productCode": "MWS 7SAF55 BG006",
+    "barcode": "3212233079244",
+    "manufacturedAt": "2023.03",
+    "name": "München Tote",
+    "category": "Tote Bag",
+    "price": 980000,
+    "description": "München Tote 프로토타입용 상품입니다.",
+    "image": "/images/products/münchen-tote.png",
+    "stock": 44,
+    "sales": 144,
+    "likes": 824,
+    "rating": 4.8,
+    "reviewCount": 293,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#ToteBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "스트릿",
+      "겨울",
+      "캐주얼",
+      "클래식"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "productCode": "MWS 9SAF60 BG007",
+    "barcode": "6617603137215",
+    "manufacturedAt": "2025.01",
+    "name": "Aren Wallet",
+    "category": "Wallet",
+    "price": 320000,
+    "description": "Aren Wallet 프로토타입용 상품입니다.",
+    "image": "/images/products/aren-wallet.png",
+    "stock": 10,
+    "sales": 195,
+    "likes": 354,
+    "rating": 4.8,
+    "reviewCount": 292,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Wallet",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "모던",
+      "캐주얼",
+      "미니멀",
+      "여행"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "productCode": "MWS 4SAF88 BG008",
+    "barcode": "2459571177774",
+    "manufacturedAt": "2023.03",
+    "name": "Logo Card Holder",
+    "category": "Card Holder",
+    "price": 320000,
+    "description": "Logo Card Holder 프로토타입용 상품입니다.",
+    "image": "/images/products/logo-card-holder.png",
+    "stock": 31,
+    "sales": 239,
+    "likes": 471,
+    "rating": 4.7,
+    "reviewCount": 227,
+    "isBestSeller": true,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#CardHolder",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "스트릿",
+      "겨울",
+      "캐주얼",
+      "미니멀"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "productCode": "MWS 9SAF56 BR009",
+    "barcode": "8084148525388",
+    "manufacturedAt": "2025.06",
+    "name": "Visetos Pouch",
+    "category": "Pouch",
+    "price": 1490000,
+    "description": "Visetos Pouch 프로토타입용 상품입니다.",
+    "image": "/images/products/visetos-pouch.png",
+    "stock": 24,
+    "sales": 206,
+    "likes": 1030,
+    "rating": 4.9,
+    "reviewCount": 244,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Pouch",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "클래식",
+      "봄",
+      "여행",
+      "모던"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "productCode": "MWS 4SAF35 NV010",
+    "barcode": "7500474395755",
+    "manufacturedAt": "2023.04",
+    "name": "Mini Boston Bag",
+    "category": "Boston Bag",
+    "price": 320000,
+    "description": "Mini Boston Bag 프로토타입용 상품입니다.",
+    "image": "/images/products/mini-boston-bag.png",
+    "stock": 24,
+    "sales": 170,
+    "likes": 401,
+    "rating": 4.7,
+    "reviewCount": 173,
+    "isBestSeller": false,
+    "isNew": true,
+    "hashtags": [
+      "#MCM",
+      "#BostonBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "봄",
+      "캐주얼",
+      "가을",
+      "모던"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "productCode": "MWS 6SAF92 BK011",
+    "barcode": "1637265167612",
+    "manufacturedAt": "2023.03",
+    "name": "Diamond Backpack",
+    "category": "Backpack",
+    "price": 190000,
+    "description": "Diamond Backpack 프로토타입용 상품입니다.",
+    "image": "/images/products/diamond-backpack.png",
+    "stock": 19,
+    "sales": 201,
+    "likes": 1126,
+    "rating": 4.7,
+    "reviewCount": 217,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Backpack",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "스트릿",
+      "가을",
+      "모던",
+      "미니멀"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 12,
+    "productCode": "MWS 9SAF80 BR012",
+    "barcode": "0018263304348",
+    "manufacturedAt": "2023.10",
+    "name": "Bucket Drawstring",
+    "category": "Bucket Bag",
+    "price": 890000,
+    "description": "Bucket Drawstring 프로토타입용 상품입니다.",
+    "image": "/images/products/bucket-drawstring.png",
+    "stock": 26,
+    "sales": 189,
+    "likes": 629,
+    "rating": 4.9,
+    "reviewCount": 65,
+    "isBestSeller": true,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#BucketBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "모던",
+      "가을",
+      "여행",
+      "겨울"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 13,
+    "productCode": "MWS 9SAF26 NV013",
+    "barcode": "2880729022279",
+    "manufacturedAt": "2025.02",
+    "name": "Leather Clutch",
+    "category": "Clutch",
+    "price": 1150000,
+    "description": "Leather Clutch 프로토타입용 상품입니다.",
+    "image": "/images/products/leather-clutch.png",
+    "stock": 13,
+    "sales": 133,
+    "likes": 898,
+    "rating": 4.8,
+    "reviewCount": 192,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Clutch",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "가을",
+      "미니멀",
+      "캐주얼",
+      "겨울"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 14,
+    "productCode": "MWS 4SAF45 BK014",
+    "barcode": "1878017598983",
+    "manufacturedAt": "2025.05",
+    "name": "Mini Crossbody",
+    "category": "Crossbody",
+    "price": 1090000,
+    "description": "Mini Crossbody 프로토타입용 상품입니다.",
+    "image": "/images/products/mini-crossbody.png",
+    "stock": 42,
+    "sales": 186,
+    "likes": 1026,
+    "rating": 4.7,
+    "reviewCount": 291,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Crossbody",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "클래식",
+      "겨울",
+      "포멀",
+      "가을"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 15,
+    "productCode": "MWS 4SAF67 BR015",
+    "barcode": "6167513613412",
+    "manufacturedAt": "2025.11",
+    "name": "Canvas Shopper",
+    "category": "Shopper",
+    "price": 1490000,
+    "description": "Canvas Shopper 프로토타입용 상품입니다.",
+    "image": "/images/products/canvas-shopper.png",
+    "stock": 33,
+    "sales": 86,
+    "likes": 459,
+    "rating": 4.9,
+    "reviewCount": 297,
+    "isBestSeller": false,
+    "isNew": true,
+    "hashtags": [
+      "#MCM",
+      "#Shopper",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "가을",
+      "클래식",
+      "미니멀",
+      "겨울"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 16,
+    "productCode": "MWS 8SAF30 BR016",
+    "barcode": "2686563551505",
+    "manufacturedAt": "2025.08",
+    "name": "Leather Sneakers",
+    "category": "Shoes",
+    "price": 1090000,
+    "description": "Leather Sneakers 프로토타입용 상품입니다.",
+    "image": "/images/products/leather-sneakers.png",
+    "stock": 11,
+    "sales": 148,
+    "likes": 539,
+    "rating": 4.8,
+    "reviewCount": 125,
+    "isBestSeller": true,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Shoes",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "겨울",
+      "미니멀",
+      "봄",
+      "여행"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 17,
+    "productCode": "MWS 4SAF23 BK017",
+    "barcode": "4402426462889",
+    "manufacturedAt": "2024.12",
+    "name": "Logo Cap",
+    "category": "Accessories",
+    "price": 890000,
+    "description": "Logo Cap 프로토타입용 상품입니다.",
+    "image": "/images/products/logo-cap.png",
+    "stock": 15,
+    "sales": 121,
+    "likes": 258,
+    "rating": 4.9,
+    "reviewCount": 96,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Accessories",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "여행",
+      "미니멀",
+      "포멀",
+      "캐주얼"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "productCode": "MWS 2SAF43 BK018",
+    "barcode": "9314170586492",
+    "manufacturedAt": "2023.09",
+    "name": "Rabbit Key Charm",
+    "category": "Accessories",
+    "price": 1890000,
+    "description": "Rabbit Key Charm 프로토타입용 상품입니다.",
+    "image": "/images/products/rabbit-key-charm.png",
+    "stock": 25,
+    "sales": 290,
+    "likes": 312,
+    "rating": 5.0,
+    "reviewCount": 117,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Accessories",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "캐주얼",
+      "스트릿",
+      "클래식",
+      "겨울"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 19,
+    "productCode": "MWS 5SAF77 BR019",
+    "barcode": "4782450400088",
+    "manufacturedAt": "2023.09",
+    "name": "Silk Twilly",
+    "category": "Accessories",
+    "price": 1090000,
+    "description": "Silk Twilly 프로토타입용 상품입니다.",
+    "image": "/images/products/silk-twilly.png",
+    "stock": 25,
+    "sales": 289,
+    "likes": 657,
+    "rating": 4.6,
+    "reviewCount": 259,
+    "isBestSeller": false,
+    "isNew": false,
+    "hashtags": [
+      "#MCM",
+      "#Accessories",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "여행",
+      "가을",
+      "봄",
+      "포멀"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  },
+  {
+    "id": 20,
+    "productCode": "MWS 5SAF98 BR020",
+    "barcode": "3532650201462",
+    "manufacturedAt": "2023.02",
+    "name": "Travel Weekender",
+    "category": "Travel Bag",
+    "price": 1490000,
+    "description": "Travel Weekender 프로토타입용 상품입니다.",
+    "image": "/images/products/travel-weekender.png",
+    "stock": 34,
+    "sales": 272,
+    "likes": 718,
+    "rating": 4.8,
+    "reviewCount": 122,
+    "isBestSeller": true,
+    "isNew": true,
+    "hashtags": [
+      "#MCM",
+      "#TravelBag",
+      "#럭셔리",
+      "#데일리"
+    ],
+    "styleTags": [
+      "봄",
+      "클래식",
+      "포멀",
+      "캐주얼"
+    ],
+    "matchingItems": {
+      "tops": [
+        "화이트 셔츠",
+        "니트"
+      ],
+      "bottoms": [
+        "슬랙스",
+        "데님 팬츠"
+      ],
+      "outers": [
+        "트렌치코트"
+      ],
+      "shoes": [
+        "화이트 스니커즈"
+      ],
+      "colors": [
+        "블랙",
+        "브라운",
+        "베이지"
+      ]
+    }
+  }
+]
