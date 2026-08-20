@@ -27,6 +27,9 @@ const LOADERS = {
 
 const inflight = new Set();
 
+/* 데모 폴백이 켜지는 순간 데이터 출처가 바뀐다 — 실서버에서 받아둔 목록은 버린다 */
+window.addEventListener("mcm-demo-latched", () => useData.getState().reset());
+
 export const useData = create((set, get) => ({
   coordis: null,
   cart: null,

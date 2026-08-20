@@ -171,6 +171,19 @@ https://<백엔드주소>/docs             # Swagger UI
 | 매장 목록 | `{items:[...]}`, `slots` | `{stores:[...]}`, `availableSlots` |
 | 장바구니 항목 | `productName`, `optionName`, `inStock` | `name`, `color`+`size`, `stock` |
 
+### 데모 폴백
+
+상품 seed 가 서버에 없어서 카탈로그에 기대는 호출이 전부 실패한다. 그래서 그런 호출이 한 번이라도
+`PRODUCT_NOT_FOUND` 류로 실패하면 **탭 세션 동안 그 구간 전체를 `mock.js` 더미로 돌린다**
+(`callOrDemo` in `api/index.js`). 처음 전환될 때 토스트로 알린다.
+
+- 더미로 도는 구간: 품번 인식 · 상품/추천 · 가상 피팅 · 코디 · 장바구니 · 주문 · 보유 제품 · 진단 · 수리 예약
+- 실서버 그대로: 로그인/회원가입/소셜 · `/me` · 아바타 · 게스트 세션
+
+장바구니만 더미고 목록은 실서버면 담은 물건이 사라지므로 도메인을 통째로 넘긴다.
+**백엔드에 상품 seed 가 들어오면 첫 호출이 성공해서 폴백은 아예 켜지지 않는다.**
+정리할 때는 `callOrDemo` 를 `call` 로 되돌리고 해당 블록만 지우면 된다.
+
 **아직 백엔드에 없는 것**
 
 - **카탈로그 목록 API** — `GET /products/{id}` 단건만 있어 상품 목록을 서버에서 못 받아옵니다. 홈·상품 화면은 `src/data/mcm_products_mock_data_v2.json` + `src/assets/product/*.jpg` 로컬 데이터를 씁니다.
