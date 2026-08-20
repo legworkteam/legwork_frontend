@@ -1,19 +1,22 @@
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
 import { NAV_TABS } from '../../components/guest/navTabs'
 import { useAddToCart } from '../../components/guest/useAddToCart'
-import { findProduct, formatPrice, PRODUCTS } from '../../data/products'
+import { findProduct, formatPrice } from '../../data/products'
 
 export default function ProductDetail() {
   const { productId } = useParams()
-  const product = findProduct(productId) ?? PRODUCTS[0]
+  const product = findProduct(productId)
+  // 훅은 조건 없이 항상 같은 순서로 — 못 찾은 경우는 아래에서 렌더만 갈아끼운다
   const { adding, handleAddToCart } = useAddToCart({
-    productId: product.id,
-    variantId: product.variantId,
-    name: product.name,
-    price: product.price,
+    productId: product?.id,
+    variantId: product?.variantId,
+    name: product?.name,
+    price: product?.price,
   })
+
+  if (!product) return <NotFound productId={productId} />
 
   return (
     <div className="mx-auto flex min-h-svh max-w-[430px] flex-col bg-bg">
@@ -98,6 +101,24 @@ export default function ProductDetail() {
       </div>
 
       <BottomNav tabs={NAV_TABS} activeKey="avatar" />
+    </div>
+  )
+}
+
+/** 로컬 카탈로그에 없는 품번 — 엉뚱한 제품을 보여주지 않는다 */
+function NotFound({ productId }) {
+  return (
+    <div className="mx-auto flex min-h-svh max-w-[430px] flex-col bg-bg">
+      <Header />
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
+        <p className="text-sm text-ink/60">
+          품번 <b className="text-ink">{productId}</b> 에 해당하는 제품 정보를 찾을 수 없습니다.
+        </p>
+        <Link to="/scan" className="rounded-full bg-ink px-6 py-3 text-sm font-medium text-bg">
+          다시 스캔하기
+        </Link>
+      </div>
+      <BottomNav tabs={NAV_TABS} />
     </div>
   )
 }

@@ -60,8 +60,8 @@ export default function PhotoFittingResult() {
   }, [location.state?.productId])
 
   const recoCards = serverRecs?.length
-    ? serverRecs.map((r) => ({ key: r.productId, to: `/coordi/${r.productId}`, fileId: r.thumbnailFileId, name: r.name }))
-    : recommendations.map((r) => ({ key: r.id, to: `/coordi/${r.id}`, image: r.image, name: r.name }))
+    ? serverRecs.map((r) => ({ key: r.productId, to: `/products/${r.productId}`, fileId: r.thumbnailFileId, name: r.name }))
+    : recommendations.map((r) => ({ key: r.id, to: `/products/${r.id}`, image: r.image, name: r.name }))
 
 
   return (
