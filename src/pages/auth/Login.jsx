@@ -92,6 +92,8 @@ export default function Login() {
             type="password"
             required
             minLength={8}
+            // 규칙은 가입에만 건다 — 기존 계정 로그인까지 막으면 안 된다
+            {...(mode === "signup" ? api.passwordFieldProps() : {})}
             placeholder={mode === "signup" ? "8자 이상, 대문자·숫자·특수문자 포함" : "••••••••"}
           />
         </Field>

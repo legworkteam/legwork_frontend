@@ -41,7 +41,7 @@ export default function OrderDetail() {
           <Thumb fileId={it.thumbnailFileId} label={it.productName[0]} className="h-20 w-16 shrink-0 rounded-2xl text-base" />
           <div className="flex-1">
             <b className="block text-[13px] font-semibold">{it.productName}</b>
-            <span className="text-[11px] text-muted">{it.optionName}</span>
+            <span className="text-[11px] text-muted">{[it.variant?.color, it.variant?.size].filter(Boolean).join(" / ")}</span>
             <span className="mt-1 block text-[11px] text-muted">수량 {it.quantity}</span>
           </div>
           <b className="text-sm">{won(it.unitPrice * it.quantity)}</b>

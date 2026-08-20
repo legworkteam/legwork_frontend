@@ -69,20 +69,20 @@ export default function Cart() {
             <div key={p.cartItemId} className="flex gap-3 border-b border-line py-4">
               <input
                 type="checkbox"
-                aria-label={`${p.productName} 선택`}
+                aria-label={`${p.name} 선택`}
                 className="mt-1 h-4 w-4 shrink-0 accent-ink"
                 checked={picked?.includes(p.cartItemId) ?? false}
                 onChange={() => toggle(p.cartItemId)}
               />
               <Thumb
                 fileId={p.thumbnailFileId}
-                label={p.productName[0]}
+                label={p.name[0]}
                 className="h-24 w-[72px] shrink-0 rounded-2xl text-base"
               />
               <div className="min-w-0 flex-1">
-                <b className="block text-[13px] font-semibold">{p.productName}</b>
-                <span className="text-[11px] text-muted">{p.optionName}</span>
-                {p.inStock === false && (
+                <b className="block text-[13px] font-semibold">{p.name}</b>
+                <span className="text-[11px] text-muted">{[p.color, p.size].filter(Boolean).join(" / ")}</span>
+                {p.stock === 0 && (
                   <span className="pill mt-1 block w-fit bg-card text-[10px] text-muted">품절</span>
                 )}
                 <b className="mt-1.5 block text-sm font-bold">{won(p.unitPrice * p.quantity)}</b>

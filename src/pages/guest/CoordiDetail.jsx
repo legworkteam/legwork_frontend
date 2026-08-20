@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import * as api from '@/api'
+import { Thumb } from '@/components'
+import { useFileUrl, useJob } from '@/hooks'
 import { useAuth, useData } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
@@ -49,6 +52,41 @@ export default function CoordiDetail() {
   const bodyInfo =
     location.state ?? (avatar ? { height: avatar.heightCm, weight: avatar.weightKg } : DEFAULT_BODY_INFO)
 
+  // 서버 카탈로그 상품이면 실제 아바타 합성을 돌린다 (202 → Job 폴링 → 결과 파일).
+  // 로컬 데모 상품이거나 합성이 실패하면 기존 고정 이미지를 그대로 쓴다.
+  const [tryOnJobId, setTryOnJobId] = useState(null)
+  const tryOnJob = useJob(tryOnJobId)
+  const tryOnUrl = useFileUrl(tryOnJob?.result?.resultFileId)
+  const tryOnPending = tryOnJobId && !tryOnUrl && tryOnJob?.status !== 'failed'
+
+  useEffect(() => {
+    if (!api.isServerProduct(productId)) return
+    api
+      .createAvatarTryOn(productId, {
+        heightCm: bodyInfo.height,
+        weightKg: bodyInfo.weight,
+        gender: location.state?.gender ?? avatar?.gender,
+      })
+      .then((job) => setTryOnJobId(job.jobId))
+      .catch(() => null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId])
+
+
+  // 서버 카탈로그 상품이면 rule-based 추천(명세 6)을 쓰고, 없으면 로컬 규칙 추천으로 떨어진다
+  const [serverRecs, setServerRecs] = useState(null)
+  useEffect(() => {
+    if (!api.isServerProduct(productId)) return
+    api
+      .getProductRecommendations(productId)
+      .then((r) => setServerRecs(r?.items ?? r))
+      .catch(() => null)
+  }, [productId])
+
+  const recoCards = serverRecs?.length
+    ? serverRecs.map((r) => ({ key: r.productId, to: `/coordi/${r.productId}`, fileId: r.thumbnailFileId, name: r.name }))
+    : recommendations.map((r) => ({ key: r.id, to: `/coordi/${r.id}`, image: r.image, name: r.name }))
+
   const coordiName = `${product.name} 스타일링`
   const coordiItems = wornItems.map((item) => ({
     productId: item.productId,
@@ -78,7 +116,12 @@ export default function CoordiDetail() {
 
       <div className="flex-1 overflow-y-auto px-4 pb-6">
         <div className="relative overflow-hidden rounded-2xl bg-card">
-          <img src={avatarHero} alt="아바타 스타일링" className="h-80 w-full object-cover" />
+          <img src={tryOnUrl ?? avatarHero} alt="아바타 스타일링" className="h-80 w-full object-cover" />
+          {tryOnPending && (
+            <span className="absolute right-3 top-3 rounded-full bg-ink/70 px-3 py-1.5 text-[11px] text-bg backdrop-blur-md">
+              합성 중…
+            </span>
+          )}
 
           <div className="absolute left-3 top-3 flex items-start gap-2 rounded-xl bg-bg/70 p-3 backdrop-blur-md">
             <span className="mt-1.5 h-2 w-2 shrink-0 animate-pulse rounded-full bg-gold" />
@@ -184,17 +227,21 @@ export default function CoordiDetail() {
             비슷한 스타일 추천
           </h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {recommendations.map((item) => (
+            {recoCards.map((item) => (
               <Link
-                key={item.id}
-                to={`/coordi/${item.id}`}
+                key={item.key}
+                to={item.to}
                 className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-card"
               >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <Thumb fileId={item.fileId} label={item.name?.[0] ?? 'M'} className="h-full w-full" />
+                )}
                 <span className="absolute inset-x-2 bottom-2 rounded-full bg-ink/85 py-1 text-center text-[10px] font-medium tracking-wide text-bg">
                   VIEW
                 </span>

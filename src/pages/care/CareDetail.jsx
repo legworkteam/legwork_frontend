@@ -29,10 +29,10 @@ export default function CareDetail() {
   return (
     <Screen title="제품 상세" back="/care" right={false}>
       <div className="mt-4 flex items-center gap-3.5 rounded-card bg-card p-[18px]">
-        <Thumb fileId={product.thumbnailFileId} label={product.productName[0]} className="h-20 w-20 rounded-2xl text-xl" />
+        <Thumb fileId={product.thumbnailFileId} label={product.name[0]} className="h-20 w-20 rounded-2xl text-xl" />
         <div className="min-w-0">
-          <b className="block text-sm font-semibold">{product.nickname || product.productName}</b>
-          <p className="text-[11px] text-muted">{product.productName}</p>
+          <b className="block text-sm font-semibold">{product.nickname || product.name}</b>
+          <p className="text-[11px] text-muted">{product.name}</p>
           <p className="mt-1 text-[11px] text-muted">{product.serialNumber}</p>
           <div className="mt-2 flex gap-1.5">
             <span className="pill bg-white text-[10px] font-medium text-muted">

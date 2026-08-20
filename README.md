@@ -1,22 +1,22 @@
-# Atelier Lens — 프론트엔드 (로그인 이후 / MEMBER 구간)
+# Atelier Lens — 프론트엔드
 
 React 19 + Vite + Tailwind v4 + React Router 7 + Zustand + axios.
 **Atelier Lens API 명세서 MVP v3.0 (2026-08-13 확정본)** 기준으로 구현했습니다.
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173 — 백엔드 없이 바로 클릭해볼 수 있습니다
+npm run dev      # http://localhost:5173 — 실제 백엔드에 붙어서 뜹니다
 ```
 
 ## 실행 모드
 
 | 상황 | 설정 | 동작 |
 | --- | --- | --- |
-| 백엔드 없음 (기본 dev) | `.env.development` 의 `VITE_USE_MOCK=true` | `src/api/mock.js` 의 더미로 전 화면 동작 |
-| 백엔드 로컬 기동 | `VITE_USE_MOCK=false`, `VITE_API_PROXY=http://localhost:8000` | dev 서버가 `/api` 를 프록시 (CORS 없음) |
-| 배포 | 환경변수에 `VITE_API_URL` 지정 (`VITE_USE_MOCK` 미설정) | **항상 실제 API 호출** |
+| **기본 dev** | `.env.development` 의 `VITE_USE_MOCK=false` + `VITE_API_PROXY` | dev 서버가 `/api` 를 백엔드로 프록시 (CORS 없음) |
+| 화면만 확인 | `VITE_USE_MOCK=true` | `src/api/mock.js` 더미로 전 화면 동작 (mock 은 실제 스키마와 같은 모양) |
+| 배포 | 환경변수에 `VITE_API_URL` 지정 | **항상 실제 API 호출** |
 
-프로덕션 빌드는 `VITE_USE_MOCK` 을 켜지 않는 한 더미를 타지 않습니다. `.env.example` 을 복사해 값을 채우세요.
+배포 환경변수가 비어 있으면 baseURL 이 `/api/v1` 로 떨어지고 `vercel.json` 의 SPA rewrite 때문에 API 응답 대신 `index.html` 이 돌아옵니다. 반드시 `VITE_API_URL` 을 채우세요. Vite 는 대시보드/셸 환경변수를 `.env` 파일보다 우선합니다.
 
 ## 배포
 
@@ -55,7 +55,7 @@ VITE_GOOGLE_CLIENT_ID=구글_OAuth_클라이언트_ID
 
 ## 담당 범위
 
-명세 §19 화면 매핑 중 **MEMBER 구간 전체**. 게스트 구간(SP-00, MN-01~03, 추천, 최근 본 상품)은 팀원 담당이라 `pages/GuestStub.jsx` 로 자리만 잡아뒀습니다.
+명세 §19 화면 매핑 전체 (MEMBER + 게스트 구간).
 
 | 화면 | 라우트 | API |
 | --- | --- | --- |
@@ -74,7 +74,11 @@ VITE_GOOGLE_CLIENT_ID=구글_OAuth_클라이언트_ID
 | AI 손상 진단 (MY-07) | `/care/{id}/diagnose` | `POST /diagnoses` → `GET /jobs/{jobId}` 폴링 |
 | 진단 결과 | `/diagnoses/{diagnosisId}` | `GET /diagnoses/{id}` + `/care-guide` |
 | 수리 예약 | `/repair-reservations/new` | `GET /stores` `POST /repair-reservations` |
-| 예약 목록 · 취소 | `/repair-reservations` | `GET·PATCH /me/repair-reservations` |
+| 예약 목록 · 취소 | `/repair-reservations` | `GET /repair-reservations` `POST /{id}/cancel` |
+| 품번 스캔 (MN-01) | `/scan` → `/scan/confirm/{code}` | `POST /product-recognitions` (사진 OCR) |
+| 아바타 피팅 (MN-02) | `/fitting/avatar` → `/coordi/{id}` | `POST /avatar-try-ons` → `GET /jobs/{id}` |
+| 내 사진 피팅 (MN-03) | `/fitting/photo` → `/fitting/photo/result` | `POST /try-ons` → `GET /jobs/{id}` → `POST /try-ons/{id}/save` |
+| 저장한 피팅 | `/saved` 하단 | `GET /me/try-ons` `DELETE /me/try-ons/{id}` |
 
 ## 구조
 
@@ -113,9 +117,10 @@ src/
   hooks.js                useFileUrl(인증 파일) · useJob(Job 폴링) · useResource(단건 조회+재시도)
 
   pages/                  ── 화면 1개 = 파일 1개, 도메인별 폴더
-    home/                 GuestStub          ← 팀원 화면으로 교체될 자리
+    guest/                Home, Scan, ProductConfirm, ProductDetail, AvatarCreate,
+                          CoordiDetail, PhotoFitting, PhotoFittingResult, UploadLimitReached
     auth/                 Login, OAuthCallback, Complete
-    mypage/               MyPage, Account, Saved
+    mypage/               MyPage, Account, Saved, SavedDetail
     shop/                 Cart, Orders, OrderDetail
     care/                 Care, CareDetail, RegisterProduct,
                           Diagnose, DiagnosisResult, RepairReserve, Reservations
@@ -142,40 +147,43 @@ src/
 - **파일**(§16): 개인 파일은 토큰이 필요해 `<img src>` 직결 불가 → `useFileUrl` 이 blob 으로 받아 objectURL 로 렌더. 업로드는 전송 전 형식/용량(사진 20MB, 영상 100MB, 최대 5개) 검증.
 - **시간**(§1.1): 표시·기본값 모두 KST.
 
-## 팀원(게스트 구간) 연동 지점 2개
+## 백엔드 계약
 
-```js
-import { setTokens } from "@/api/tokens";
-import { useAuth } from "@/store";
+**단일 기준은 배포된 OpenAPI 문서입니다.** 명세서(`docs/API_SPEC.md`)와 다른 곳이 있으므로 필드명은 항상 이쪽을 확인하세요.
 
-// 1) POST /guest-sessions 응답 저장 — 이후 GUEST 권한 요청에 자동으로 붙습니다
-setTokens({ guestToken, guestSessionId });
-
-// 2) 게스트가 저장/담기를 누를 때 의도를 넘기고 MEMBER 라우트로 보내면
-//    PrivateRoute → /login → 로그인 → /auth/claim → /complete 까지 알아서 흐릅니다
-useAuth.getState().setPending({ type: "coordi", name: "Aren Backpack Look" });
-navigate("/complete");
+```
+https://<백엔드주소>/openapi.json     # 스키마 41개 엔드포인트
+https://<백엔드주소>/docs             # Swagger UI
 ```
 
-`/` 의 "저장 · 장바구니 담기" 버튼이 이 흐름을 그대로 재현합니다. 게스트 화면을 붙일 때 `pages/home/GuestStub.jsx` 를 실제 화면으로 교체하고 `App.jsx` 의 `/`, `/avatar` 라우트만 바꾸면 됩니다.
+`src/api/mock.js` 는 이 스키마와 같은 모양으로 맞춰져 있습니다. mock 모드로 짠 화면이 실서버에서 그대로 도는지 여기서 먼저 검증됩니다.
 
-## 백엔드에 확인해야 할 것 (명세에 응답 body 가 없어 필드명을 추정한 곳)
+**명세서와 실제 구현이 다른 곳** (실제 구현 기준으로 코드 작성됨)
 
-`src/api/mock.js` 의 형태가 그대로 계약 제안입니다. 다르면 mock.js 와 해당 페이지만 고치면 됩니다. 목록 API 는 배열이든 `{items:[...]}` 든 받도록 정규화해 뒀습니다.
+| 항목 | `docs/API_SPEC.md` | 실제 백엔드 |
+| --- | --- | --- |
+| 예약 목록 | `GET /me/repair-reservations` | `GET /repair-reservations` |
+| 예약 취소 | `PATCH /me/repair-reservations/{id}` | `POST /repair-reservations/{id}/cancel` |
+| 예약 필드 | `reservationId`, `memo` | `repairReservationId`, `note` |
+| 예약 생성 | `diagnosisId` 선택 | **필수** — 진단 없이 예약 불가 |
+| 진단 심각도 | `severity` 1~3 | `low` / `medium` / `high` |
+| 회원 프로필 | `provider` | `authProvider` (소문자) |
+| 매장 목록 | `{items:[...]}`, `slots` | `{stores:[...]}`, `availableSlots` |
+| 장바구니 항목 | `productName`, `optionName`, `inStock` | `name`, `color`+`size`, `stock` |
 
-1. `GET /cart` — `{ items:[{cartItemId, productId, variantId, productName, optionName, unitPrice, quantity, thumbnailFileId, inStock}], totalAmount }`
-2. `GET /me/coordis` — `{savedCoordiId, name, itemCount, thumbnailFileId, createdAt}`
-3. `GET /me/products` — `{registrationId, productName, serialNumber, nickname, source, purchaseDate, thumbnailFileId, lastDiagnosis}` / 상세의 "최근 진단·예약 요약" 필드명
-4. `GET /me/orders`, `/me/orders/{id}` — 목록 항목과 snapshot 필드명(`items[].productName/optionName/unitPrice/quantity`)
-5. `GET /stores` — `{storeId, name, address, slots: ISO8601[]}` (슬롯이 문자열 배열인지 객체인지)
-6. `GET /me/repair-reservations` — `{reservationId, storeName, slot, status, memo}` / `status` 값 집합 (`confirmed|cancelled|completed` 로 가정)
-7. `GET /me/products/{id}/care-guide` — `{material, basics[], cautions[], asInfo}`
-8. 진단 결과의 **`severity` 범위** — 1~3(경미/보통/심각)으로 표시 중
-9. `GET /me` — `provider`(LOCAL/GOOGLE/KAKAO), `createdAt` 포함 여부
-10. 목록 API 의 `meta.pagination` 적용 대상 (현재는 첫 페이지만 사용, 무한스크롤 미구현)
+**아직 백엔드에 없는 것**
+
+- **카탈로그 목록 API** — `GET /products/{id}` 단건만 있어 상품 목록을 서버에서 못 받아옵니다. 홈·상품 화면은 `src/data/mcm_products_mock_data_v2.json` + `src/assets/product/*.jpg` 로컬 데이터를 씁니다.
+- **상품 seed 데이터** — 매장은 시드가 있지만 상품이 비어 있어 OCR 인식 성공, 장바구니 담기, 주문, 보유 제품 등록(`SERIAL_NOT_FOUND`), 진단, 예약 생성이 연쇄로 막혀 있습니다. 코드는 모두 연결돼 있고 데이터만 들어오면 됩니다.
+- `POST /auth/claim` 이 최근 본 상품만 이관합니다. 게스트가 만든 피팅·코디는 로그인해도 넘어오지 않습니다.
+
+로컬/서버 상품을 가르는 분기는 `api.isServerProduct(id)` 한 곳에 모여 있습니다 (로컬은 정수 id, 서버는 UUID). 카탈로그 API 가 생기면 이 분기를 지우면 됩니다.
 
 ## 남은 작업
 
+- **상품 seed 투입 후 재검증**: OCR 성공 경로, 가상 피팅 결과 이미지, 서버 추천 렌더링은 상품이 없어 아직 실행해보지 못했습니다.
+- **배포 환경변수**: 배포처의 `VITE_API_URL` 이 비어 있으면 API 가 전부 실패합니다. 값 등록 후 재배포(빌드 타임에 번들에 굳습니다).
+- **회원 화면 좌상단 메뉴**: 드로어는 게스트 구간 헤더(`components/guest/Header.jsx`)에만 있습니다. `components/Screen.jsx` 는 좌상단이 뒤로가기라 메뉴가 없습니다.
 - **PWA**(`vite-plugin-pwa`): 192/512 PNG 아이콘 에셋이 나오면 추가. 지금은 설치 유도 UI 없음.
 - **브랜드 엠블럼**: `components/Emblem.jsx` 는 **플레이스홀더**입니다. 공식 로고 SVG 를 받으면 그 파일 내용만 교체하세요.
 - **무한스크롤**: 목록이 20건을 넘기 시작하면 `meta.pagination.nextCursor` 로 추가 로드 필요.

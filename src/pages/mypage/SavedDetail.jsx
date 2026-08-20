@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import * as api from "@/api";
-import { Empty, ErrorState, Loading, Screen } from "@/components";
+import { Empty, ErrorState, Loading, Screen, Thumb } from "@/components";
 import { fmtDate, toast, toastError, useData } from "@/store";
 import { useResource } from "@/hooks";
 
@@ -41,14 +41,17 @@ export default function SavedDetail() {
         <div className="flex flex-col gap-3">
           {coordi.items.map((item, i) => (
             <div key={item.productId ?? i} className="flex items-center gap-3 rounded-2xl bg-card p-3">
-              {item.image ? (
-                <img src={item.image} alt={item.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
-              ) : (
-                <div className="h-14 w-14 shrink-0 rounded-xl bg-greige/40" />
-              )}
+              <Thumb
+                fileId={item.product?.thumbnailFileId}
+                label={item.product?.name?.[0] ?? "M"}
+                className="h-14 w-14 shrink-0 rounded-xl text-base"
+              />
               <div className="flex-1">
-                <b className="block text-[13px] font-semibold">{item.name ?? "상품"}</b>
-                {item.price != null && <span className="text-[12px] text-muted">{item.price.toLocaleString("ko-KR")}원</span>}
+                <b className="block text-[13px] font-semibold">{item.product?.name ?? "상품"}</b>
+                <span className="text-[12px] text-muted">
+                  {[item.variant?.color, item.variant?.size].filter(Boolean).join(" / ")}
+                  {item.product?.basePrice != null && ` · ${item.product.basePrice.toLocaleString("ko-KR")}원`}
+                </span>
               </div>
             </div>
           ))}

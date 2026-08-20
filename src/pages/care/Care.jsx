@@ -44,9 +44,9 @@ export default function Care() {
               onClick={() => nav(`/care/${p.registrationId}`)}
               className="card mb-3 flex w-full items-center gap-3 text-left"
             >
-              <Thumb fileId={p.thumbnailFileId} label={p.productName[0]} className="h-16 w-16 rounded-2xl text-lg" />
+              <Thumb fileId={p.thumbnailFileId} label={p.name[0]} className="h-16 w-16 rounded-2xl text-lg" />
               <div className="min-w-0 flex-1">
-                <b className="block truncate text-sm font-semibold">{p.nickname || p.productName}</b>
+                <b className="block truncate text-sm font-semibold">{p.nickname || p.name}</b>
                 <div className="text-[11px] text-muted">{p.serialNumber}</div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <span className="pill bg-card text-[10px] font-medium text-muted">

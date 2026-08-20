@@ -1,12 +1,19 @@
 ﻿import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import * as api from "@/api";
 import { Empty, ErrorState, Loading, Screen, Thumb } from "@/components";
+import { useResource } from "@/hooks";
 import { fmtDate, toast, toastError, useData } from "@/store";
 
 /** 명세 10. GET /me/coordis · DELETE /me/coordis/{savedCoordiId} (soft delete) */
 export default function Saved() {
   const nav = useNavigate();
   const { coordis, errors, load, removeCoordi } = useData();
+  // 저장한 피팅 결과 (명세 9 — POST /try-ons/{id}/save 로 영구화한 것들)
+  const { data: tryOns, reload: reloadTryOns } = useResource(
+    () => api.getMyTryOns().then((r) => r.items ?? r),
+    []
+  );
 
   useEffect(() => {
     load("coordis");
@@ -61,12 +68,42 @@ export default function Saved() {
                   </button>
                 </Thumb>
                 <b className="block text-[13px] font-semibold">{c.name}</b>
-                <span className="text-[11px] text-muted">
-                  {c.itemCount}개 아이템 · {fmtDate(c.createdAt)}
-                </span>
+                <span className="text-[11px] text-muted">{fmtDate(c.createdAt)}</span>
               </Link>
             ))}
           </div>
+
+          {tryOns?.length > 0 && (
+            <section className="mt-9">
+              <p className="lbl mb-2.5">SAVED FITTINGS · {tryOns.length}</p>
+              <div className="grid grid-cols-2 gap-3.5">
+                {tryOns.map((t) => (
+                  <Thumb
+                    key={t.tryOnId}
+                    fileId={t.resultFileId}
+                    label="FIT"
+                    className="aspect-3/4 rounded-2xl text-[18px]"
+                  >
+                    <button
+                      aria-label="삭제"
+                      className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/85 text-[13px] text-ink"
+                      onClick={async () => {
+                        try {
+                          await api.deleteTryOn(t.tryOnId);
+                          reloadTryOns();
+                          toast("저장한 피팅을 삭제했습니다");
+                        } catch (e) {
+                          toastError(e);
+                        }
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </Thumb>
+                ))}
+              </div>
+            </section>
+          )}
 
           <button className="btn mt-7 border border-ink bg-white" onClick={() => nav("/")}>
             다른 제품 이어보기

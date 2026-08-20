@@ -1,19 +1,36 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import * as api from '@/api'
+import { toast, toastError } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
 import { NAV_TABS } from '../../components/guest/navTabs'
 import boutiqueBg from '../../assets/guest/scan/boutique-bg.jpg'
-import { getRandomProduct } from '../../data/products'
 
 export default function Scan() {
   const [mode, setMode] = useState('photo')
   const [productNumber, setProductNumber] = useState('')
+  const [busy, setBusy] = useState(false)
   const navigate = useNavigate()
 
-  const handleCapture = () => {
-    // OCR 미연동 — 실제 카탈로그에서 임의 상품을 인식 결과로 사용
-    navigate(`/scan/confirm/${getRandomProduct().id}`)
+  /** 명세 5: 사진만 올리면 OCR·정규화·상품조회는 서버가 한다 */
+  const handleCapture = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // 같은 파일을 다시 골라도 onChange 가 뜨도록
+    if (!file) return
+
+    const invalid = api.validateUpload(file)
+    if (invalid) return toast(invalid)
+
+    setBusy(true)
+    try {
+      const { product, recognizedCode } = await api.recognizeProduct(file)
+      navigate(`/scan/confirm/${encodeURIComponent(product?.productCode ?? recognizedCode)}`)
+    } catch (err) {
+      toastError(err) // PRODUCT_CODE_NOT_DETECTED / _AMBIGUOUS / PRODUCT_NOT_FOUND
+    } finally {
+      setBusy(false)
+    }
   }
 
   const handleManualSubmit = (e) => {
@@ -41,11 +58,17 @@ export default function Scan() {
               <div className="absolute left-0 top-0 h-0.5 w-full animate-[scan-line_2s_linear_infinite] bg-gold shadow-[0_0_8px_rgba(136,82,0,0.8)]" />
             </div>
 
-            <button
-              type="button"
-              onClick={handleCapture}
-              className="flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-medium text-bg transition hover:brightness-95"
+            <label
+              className={`flex cursor-pointer items-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-medium text-bg transition hover:brightness-95 ${busy ? 'pointer-events-none opacity-60' : ''}`}
             >
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                capture="environment"
+                hidden
+                disabled={busy}
+                onChange={handleCapture}
+              />
               <svg
                 width="18"
                 height="18"
@@ -59,8 +82,8 @@ export default function Scan() {
                 <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
                 <circle cx="12" cy="13" r="3.2" />
               </svg>
-              사진으로 촬영하기
-            </button>
+              {busy ? '인식 중…' : '사진으로 촬영하기'}
+            </label>
 
             <button
               type="button"

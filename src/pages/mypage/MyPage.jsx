@@ -32,7 +32,7 @@ export default function MyPage() {
             <div className="font-serif text-lg font-bold">{user?.name ?? "—"}</div>
             <p className="mt-0.5 text-[11px] text-muted">{user?.email}</p>
           </div>
-          <span className="pill bg-gold text-white">{user?.provider ?? "LOCAL"}</span>
+          <span className="pill bg-gold text-white">{(user?.authProvider ?? "local").toUpperCase()}</span>
         </div>
 
         <div className="mt-5 flex">

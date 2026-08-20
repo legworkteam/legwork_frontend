@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import * as api from '@/api'
+import { toast, toastError } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
 import { NAV_TABS } from '../../components/guest/navTabs'
@@ -14,6 +16,8 @@ export default function PhotoFitting() {
   const productId = location.state?.productId
   const fileInputRef = useRef(null)
   const [previewUrl, setPreviewUrl] = useState(null)
+  const [file, setFile] = useState(null)
+  const [busy, setBusy] = useState(false)
   const [uploadCount, setUploadCount] = useState(() => Number(localStorage.getItem(STORAGE_KEY) ?? 0))
 
   const remaining = GUEST_UPLOAD_LIMIT - uploadCount
@@ -26,17 +30,35 @@ export default function PhotoFitting() {
   }, [limitReached, navigate])
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setPreviewUrl(URL.createObjectURL(file))
+    const picked = e.target.files?.[0]
+    if (!picked) return
+    const invalid = api.validateUpload(picked) // 명세 16: JPEG/PNG/WEBP 20MB
+    if (invalid) return toast(invalid)
+    setFile(picked)
+    setPreviewUrl(URL.createObjectURL(picked))
   }
 
-  const handleSubmit = () => {
-    if (!previewUrl || limitReached) return
+  const handleSubmit = async () => {
+    if (!previewUrl || limitReached || busy) return
+
+    // 서버 카탈로그 상품일 때만 실제 합성(명세 9). 데모 상품은 업로드한 사진을 그대로 보여준다.
+    let jobId = null
+    if (file && api.isServerProduct(productId)) {
+      setBusy(true)
+      try {
+        jobId = (await api.createPhotoTryOn(file, productId)).jobId
+      } catch (e) {
+        toastError(e) // PERSON_NOT_DETECTED / INVALID_IMAGE / 세션 업로드 한도
+        return
+      } finally {
+        setBusy(false)
+      }
+    }
+
     const nextCount = uploadCount + 1
     setUploadCount(nextCount)
     localStorage.setItem(STORAGE_KEY, String(nextCount))
-    navigate('/fitting/photo/result', { state: { photoUrl: previewUrl, bodyInfo, productId } })
+    navigate('/fitting/photo/result', { state: { photoUrl: previewUrl, bodyInfo, productId, jobId } })
   }
 
   return (
@@ -82,10 +104,10 @@ export default function PhotoFitting() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!previewUrl}
+          disabled={!previewUrl || busy}
           className="w-full rounded-full bg-gold px-6 py-3 text-sm font-medium text-bg transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          합성하기
+          {busy ? '합성 요청 중…' : '합성하기'}
         </button>
       </div>
 

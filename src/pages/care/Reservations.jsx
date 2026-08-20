@@ -1,6 +1,8 @@
 ﻿import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import * as api from "@/api";
 import { Empty, ErrorState, Loading, Screen } from "@/components";
+import { useResource } from "@/hooks";
 import { fmtDateTime, toast, toastError, useData } from "@/store";
 
 const STATUS = {
@@ -9,10 +11,13 @@ const STATUS = {
   completed: ["수리 완료", "bg-card text-muted"],
 };
 
-/** 명세 15. GET /me/repair-reservations · PATCH(취소만 지원) */
+/** 수리 예약 목록 — GET /repair-reservations · POST /{id}/cancel (취소만 지원) */
 export default function Reservations() {
   const nav = useNavigate();
   const { reservations, errors, load, cancelReservation } = useData();
+  // 예약 응답에는 storeId 만 있어 매장명이 없다 — 매장 목록으로 이름을 채운다
+  const { data: stores } = useResource(() => api.getStores().then((r) => r.stores), []);
+  const storeName = (storeId) => stores?.find((s) => s.storeId === storeId)?.name ?? "매장";
 
   useEffect(() => {
     load("reservations");
@@ -39,19 +44,19 @@ export default function Reservations() {
           {reservations.map((r) => {
             const [label, cls] = STATUS[r.status] ?? STATUS.confirmed;
             return (
-              <div key={r.reservationId} className="card mb-3">
+              <div key={r.repairReservationId} className="card mb-3">
                 <div className="flex items-center justify-between">
                   <span className={`pill ${cls}`}>{label}</span>
                   <span className="text-[11px] text-muted">{fmtDateTime(r.slot)}</span>
                 </div>
-                <b className="mt-3 block text-sm">{r.storeName}</b>
-                {r.memo && <p className="mt-1 text-[12px] text-muted">{r.memo}</p>}
+                <b className="mt-3 block text-sm">{storeName(r.storeId)}</b>
+                {r.note && <p className="mt-1 text-[12px] text-muted">{r.note}</p>}
                 {r.status === "confirmed" && (
                   <button
                     className="mt-4 w-full rounded-full border border-line py-2.5 text-xs text-muted"
                     onClick={async () => {
                       try {
-                        await cancelReservation(r.reservationId);
+                        await cancelReservation(r.repairReservationId);
                         toast("예약이 취소되었습니다");
                       } catch (e) {
                         toastError(e);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import * as api from '@/api'
 import { useAuth } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
@@ -38,6 +39,9 @@ export default function AvatarCreate() {
     const weightKg = Number(weight)
     if (authed) {
       await saveAvatar({ heightCm, weightKg, gender }).catch(() => null)
+    } else {
+      // 게스트도 세션에 남겨야 아바타 피팅이 표준 체형으로 떨어지지 않는다 (명세 4)
+      await api.putGuestAvatar({ heightCm, weightKg, gender }).catch(() => null)
     }
     navigate(`/coordi/${incomingProductId ?? 'avatar-demo'}`, { state: { height: heightCm, weight: weightKg, gender } })
   }

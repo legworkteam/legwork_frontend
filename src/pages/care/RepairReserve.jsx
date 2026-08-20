@@ -19,7 +19,7 @@ export default function RepairReserve() {
   useEffect(() => {
     setStores(null);
     setPicked(null);
-    api.getStores(date).then((r) => setStores(r.items)).catch(toastError);
+    api.getStores(date).then((r) => setStores(r.stores)).catch(toastError);
   }, [date]);
 
   const submit = async (e) => {
@@ -27,20 +27,20 @@ export default function RepairReserve() {
     if (!picked) return toastError({ message: "매장과 시간을 선택해 주세요." });
     setBusy(true);
     const { memo } = Object.fromEntries(new FormData(e.target));
+    if (!diagnosisId) return toastError({ message: "AI 진단을 먼저 받아야 예약할 수 있습니다." });
     try {
       await api.createReservation({
         storeId: picked.store.storeId,
-        storeName: picked.store.name,
         diagnosisId,
         slot: picked.slot,
-        memo,
+        note: memo,
       });
       await load("reservations", true);
       toast("수리 예약이 접수되었습니다");
       nav("/repair-reservations", { replace: true });
     } catch (e) {
       toastError(e); // SLOT_UNAVAILABLE(409) → 다른 슬롯 선택 유도
-      api.getStores(date).then((r) => setStores(r.items));
+      api.getStores(date).then((r) => setStores(r.stores));
     } finally {
       setBusy(false);
     }
@@ -51,7 +51,7 @@ export default function RepairReserve() {
       <form onSubmit={submit} className="mt-4">
         {!diagnosisId && (
           <p className="mb-4 rounded-2xl bg-card p-3.5 text-[12px] leading-relaxed text-muted">
-            진단 결과 없이 예약합니다. AI 진단을 먼저 받으면 매장에 손상 정보가 함께 전달됩니다.
+            수리 예약에는 AI 진단 결과가 필요합니다. 보유 제품에서 진단을 먼저 받아 주세요.
           </p>
         )}
 
@@ -68,8 +68,8 @@ export default function RepairReserve() {
               <b className="text-sm">{s.name}</b>
               <p className="mt-0.5 text-[11px] text-muted">{s.address}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {s.slots.length === 0 && <span className="text-[12px] text-muted">예약 가능한 시간이 없습니다.</span>}
-                {s.slots.map((slot) => {
+                {s.availableSlots.length === 0 && <span className="text-[12px] text-muted">예약 가능한 시간이 없습니다.</span>}
+                {s.availableSlots.map((slot) => {
                   const on = picked?.slot === slot && picked.store.storeId === s.storeId;
                   return (
                     <button

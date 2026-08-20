@@ -1,4 +1,9 @@
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import * as api from '@/api'
+import { Thumb } from '@/components'
+import { useFileUrl, useJob } from '@/hooks'
+import { toast, toastError, useAuth } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
 import { NAV_TABS } from '../../components/guest/navTabs'
@@ -8,8 +13,28 @@ import fallbackHero from '../../assets/guest/coordi/photo-fitting-fallback.jpg'
 
 export default function PhotoFittingResult() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const authed = useAuth((s) => s.authed)
   const bodyInfo = location.state?.bodyInfo ?? { height: 175, weight: 68 }
-  const heroImage = location.state?.photoUrl ?? fallbackHero
+
+  // 실제 합성을 요청했으면 Job 이 끝나는 대로 결과 이미지로 갈아끼운다 (없으면 올린 사진 그대로)
+  const job = useJob(location.state?.jobId)
+  const resultUrl = useFileUrl(job?.result?.resultFileId)
+  const heroImage = resultUrl ?? location.state?.photoUrl ?? fallbackHero
+  const pending = location.state?.jobId && !resultUrl && job?.status !== 'failed'
+
+  /** 합성 결과는 TTL 3시간 — 회원이 명시적으로 저장해야 영구화된다 (명세 9) */
+  const handleSave = async () => {
+    const tryOnId = job?.result?.tryOnId
+    if (!tryOnId) return toast('저장할 합성 결과가 없습니다')
+    if (!authed) return navigate('/login', { state: { from: location.pathname } })
+    try {
+      await api.saveTryOn(tryOnId)
+      toast('저장했습니다')
+    } catch (e) {
+      toastError(e)
+    }
+  }
   const product = findProduct(location.state?.productId) ?? PRODUCTS[0]
   const wornItems = [
     {
@@ -24,6 +49,21 @@ export default function PhotoFittingResult() {
   ]
   const recommendations = getRecommendations(product.id, 2)
 
+  // 서버 카탈로그 상품이면 rule-based 추천(명세 6)을 쓰고, 없으면 로컬 규칙 추천으로 떨어진다
+  const [serverRecs, setServerRecs] = useState(null)
+  useEffect(() => {
+    if (!api.isServerProduct(location.state?.productId)) return
+    api
+      .getProductRecommendations(location.state?.productId)
+      .then((r) => setServerRecs(r?.items ?? r))
+      .catch(() => null)
+  }, [location.state?.productId])
+
+  const recoCards = serverRecs?.length
+    ? serverRecs.map((r) => ({ key: r.productId, to: `/coordi/${r.productId}`, fileId: r.thumbnailFileId, name: r.name }))
+    : recommendations.map((r) => ({ key: r.id, to: `/coordi/${r.id}`, image: r.image, name: r.name }))
+
+
   return (
     <div className="mx-auto flex min-h-svh max-w-[430px] flex-col bg-bg">
       <Header />
@@ -33,6 +73,11 @@ export default function PhotoFittingResult() {
 
         <div className="relative overflow-hidden rounded-2xl bg-card">
           <img src={heroImage} alt="내 사진 피팅 결과" className="h-80 w-full object-cover" />
+          {pending && (
+            <span className="absolute right-3 top-3 rounded-full bg-ink/70 px-3 py-1.5 text-[11px] text-bg backdrop-blur-md">
+              합성 중…
+            </span>
+          )}
 
           <div className="absolute left-3 top-3 flex items-start gap-2 rounded-xl bg-bg/70 p-3 backdrop-blur-md">
             <span className="mt-1.5 h-2 w-2 shrink-0 animate-pulse rounded-full bg-gold" />
@@ -61,6 +106,7 @@ export default function PhotoFittingResult() {
             </button>
             <button
               type="button"
+              onClick={handleSave}
               className="flex-1 rounded-full bg-bg/70 px-3 py-2 text-xs font-medium text-ink backdrop-blur-md"
             >
               저장하기
@@ -85,17 +131,21 @@ export default function PhotoFittingResult() {
             비슷한 스타일 추천
           </h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {recommendations.map((item) => (
+            {recoCards.map((item) => (
               <Link
-                key={item.id}
-                to={`/coordi/${item.id}`}
+                key={item.key}
+                to={item.to}
                 className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-card"
               >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                />
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <Thumb fileId={item.fileId} label={item.name?.[0] ?? 'M'} className="h-full w-full" />
+                )}
                 <span className="absolute inset-x-2 bottom-2 rounded-full bg-ink/85 py-1 text-center text-[10px] font-medium tracking-wide text-bg">
                   VIEW
                 </span>

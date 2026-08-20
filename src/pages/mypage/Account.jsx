@@ -89,7 +89,14 @@ export default function Account() {
             <input name="currentPassword" type="password" required />
           </Field>
           <Field label="새 비밀번호">
-            <input name="newPassword" type="password" minLength={8} required placeholder="8자 이상, 대문자·숫자·특수문자" />
+            <input
+              name="newPassword"
+              type="password"
+              minLength={8}
+              required
+              {...api.passwordFieldProps()}
+              placeholder="8자 이상, 대문자·숫자·특수문자"
+            />
           </Field>
           <button className="btn border border-ink bg-white" disabled={busy === "password"}>
             {busy === "password" ? "변경 중…" : "비밀번호 변경"}

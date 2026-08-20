@@ -5,7 +5,6 @@ import { fmtDateTime } from "@/store";
 import { useResource } from "@/hooks";
 
 /** severity 범위는 명세에 없음 → 1~3 가정 (백엔드 확인 필요) */
-const SEVERITY = ["", "경미", "보통", "심각"];
 
 /** 명세 14. GET /diagnoses/{diagnosisId} + /care-guide */
 export default function DiagnosisResult() {
@@ -48,9 +47,9 @@ export default function DiagnosisResult() {
         {d.damages.map((dm, i) => (
           <div key={i} className="card mb-3">
             <div className="flex items-center justify-between">
-              <b className="text-sm">{api.DAMAGE_LABEL[dm.category] ?? dm.category}</b>
+              <b className="text-sm">{api.DAMAGE_LABEL[dm.damageType] ?? dm.damageType}</b>
               <span className="pill bg-card text-[10px] font-medium text-muted">
-                {SEVERITY[dm.severity] ?? `severity ${dm.severity}`}
+                {api.SEVERITY_LABEL[dm.severity] ?? dm.severity}
               </span>
             </div>
             <div className="mt-3 flex justify-between text-[11px] text-muted">

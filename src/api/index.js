@@ -1,6 +1,7 @@
 import { client } from "./client";
 import { mock } from "./mock";
 import { redirectUri } from "./oauth";
+import { getTokens, setTokens } from "./tokens";
 
 /**
  * 기본값은 실제 API 호출.
@@ -43,6 +44,89 @@ export const logout = (refreshToken) =>
 /** 게스트 세션 데이터(아바타 파라미터/최근 본 상품/저장 요청한 try-on)를 회원으로 이관 */
 export const claimGuest = (guestToken) =>
   call(() => client.post("/auth/claim", { guestToken }), mock.claim);
+
+/* ── 2. 게스트 세션 ──────────────────────────────────── */
+export const createGuestSession = () =>
+  call(() => client.post("/guest-sessions", {}), mock.guestSession);
+
+/**
+ * GUEST 엔드포인트 호출 직전에만 토큰을 보장한다(앱 시작 시 무조건 발급하지 않음).
+ * 게스트 토큰은 당일 23:59:59 KST 만료라(명세 0) 만료 시각을 같이 저장해 두고 지나면 재발급한다.
+ */
+async function ensureGuestToken() {
+  const { accessToken, guestToken, guestExpiresAt } = getTokens();
+  if (accessToken) return; // 회원이면 회원 JWT 가 우선
+  if (guestToken && Date.now() < Date.parse(guestExpiresAt)) return;
+  const { guestToken: t, guestSessionId, expiresAt } = await createGuestSession();
+  setTokens({ guestToken: t, guestSessionId, guestExpiresAt: expiresAt });
+}
+
+/** GUEST 엔드포인트는 호출 직전에 토큰을 보장한다 */
+const guest = (fn) => async () => {
+  await ensureGuestToken();
+  return fn();
+};
+
+/**
+ * 로컬 데모 카탈로그는 정수 id, 서버 상품은 UUID.
+ * 서버 API(피팅/추천/상세)를 걸 수 있는 상품인지 판별한다.
+ * TODO: 서버에 카탈로그 목록 API 가 생겨 로컬 JSON 을 버리면 이 분기도 같이 제거.
+ */
+export const isServerProduct = (id) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id ?? ""));
+
+/* ── 4. 게스트 신체정보 ──────────────────────────────── */
+/** 게스트는 세션에만 저장(명세 4). 로그인하면 /auth/claim 이 회원으로 옮긴다 */
+export const putGuestAvatar = (body) =>
+  call(guest(() => client.put("/guest-sessions/me/avatar-parameters", body)), () => body);
+
+/* ── 5. 품번 사진 OCR ────────────────────────────────── */
+/** 사진 1장 → 서버가 OCR·정규화·상품조회까지 수행. 실패 코드: PRODUCT_CODE_NOT_DETECTED / _AMBIGUOUS / PRODUCT_NOT_FOUND */
+export const recognizeProduct = (file) =>
+  call(
+    guest(() => {
+      const form = new FormData();
+      form.append("image", file);
+      return client.post("/product-recognitions", form);
+    }),
+    mock.recognize
+  );
+
+/* ── 5·6. 상품 / 규칙기반 추천 ───────────────────────── */
+export const getProduct = (productId) => call(guest(() => client.get(`/products/${productId}`)), null);
+export const getProductVariants = (productId) =>
+  call(guest(() => client.get(`/products/${productId}/variants`)), []);
+export const getRecentProducts = () => call(guest(() => client.get("/recent-products")), { items: [] });
+/** 게스트는 서버가 최대 3개로 제한한다(명세 6) */
+export const getProductRecommendations = (productId, limit = 3) =>
+  call(guest(() => client.get(`/products/${productId}/recommendations`, { params: { limit } })), []);
+
+/* ── 8·9. 가상 착용 (202 → Job 폴링, 결과는 files/{id}) ─ */
+/** 아바타 착용. 회원이 신체정보를 생략하면 서버가 /me/avatar 값을 쓴다(명세 8) */
+export const createAvatarTryOn = (productId, body = {}) =>
+  call(
+    guest(() => client.post("/avatar-try-ons", { scope: "productOnly", productId, ...body })),
+    () => ({ jobId: "mock-tryon", type: "avatarTryOn" })
+  );
+
+/** 내 사진 착용 — multipart. 게스트는 세션당 3회 제한(서버가 카운트) */
+export const createPhotoTryOn = (photo, productId) =>
+  call(
+    guest(() => {
+      const form = new FormData();
+      form.append("photo", photo);
+      form.append("scope", "productOnly");
+      form.append("productId", productId);
+      return client.post("/try-ons", form);
+    }),
+    () => ({ jobId: "mock-tryon", type: "photoTryOn" })
+  );
+
+/** 임시 결과(TTL 3시간)를 영구 저장 — 회원만 */
+export const saveTryOn = (tryOnId) => call(() => client.post(`/try-ons/${tryOnId}/save`), {});
+export const getMyTryOns = () => call(() => client.get("/me/try-ons"), mock.tryOns);
+export const deleteTryOn = (tryOnId) =>
+  call(() => client.delete(`/me/try-ons/${tryOnId}`), () => mock.deleteTryOn(tryOnId));
 
 /* ── 4. 내 계정 / 아바타 ─────────────────────────────── */
 export const getMe = () => call(() => client.get("/me"), mock.me);
@@ -120,11 +204,11 @@ export const getJob = (jobId) => call(() => client.get(`/jobs/${jobId}`), () => 
 export const getStores = (date) => call(() => client.get("/stores", { params: { date } }), () => mock.stores(date));
 export const createReservation = (body) =>
   call(() => client.post("/repair-reservations", body), () => mock.createReservation(body));
-export const getReservations = () =>
-  call(() => client.get("/me/repair-reservations"), mock.reservations);
+/* 명세 15 는 /me/repair-reservations + PATCH 로 적혀 있으나, 실제 백엔드는 아래 경로로 구현돼 있다 */
+export const getReservations = () => call(() => client.get("/repair-reservations"), mock.reservations);
 export const cancelReservation = (reservationId) =>
   call(
-    () => client.patch(`/me/repair-reservations/${reservationId}`, { status: "cancelled" }),
+    () => client.post(`/repair-reservations/${reservationId}/cancel`),
     () => mock.patchReservation(reservationId, { status: "cancelled" })
   );
 
@@ -143,11 +227,30 @@ export const DAMAGE_LABEL = {
   abrasion: "마모",
 };
 
+/** 명세 14 손상 심각도 — 서버 enum 은 low|medium|high */
+export const SEVERITY_LABEL = { low: "경미", medium: "보통", high: "심각" };
+
 /* 명세 16: 파일 포맷/용량 */
 export const FILE_LIMITS = {
   image: { types: ["image/jpeg", "image/png", "image/webp"], max: 20 * 1024 * 1024, label: "JPEG/PNG/WEBP 20MB" },
   video: { types: ["video/mp4", "video/quicktime"], max: 100 * 1024 * 1024, label: "MP4/MOV 100MB" },
 };
+
+/**
+ * 명세 3: 비밀번호 규칙 — 최소 8자, 대문자·숫자·특수문자 포함.
+ * 서버가 최종 판정하지만, 왕복 한 번 없이 폼에서 먼저 걸러낸다.
+ * <input pattern> 은 암묵적으로 ^(?:...)$ 로 감싸지므로 lookahead + .{8,} 조합으로 쓴다.
+ */
+export const PASSWORD_PATTERN = "(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}";
+export const PASSWORD_HINT = "8자 이상, 대문자·숫자·특수문자를 각각 1개 이상 포함해야 합니다.";
+
+/** 위 규칙을 폼 input 에 그대로 얹는다 (브라우저 기본 검증 + 한글 메시지) */
+export const passwordFieldProps = () => ({
+  pattern: PASSWORD_PATTERN,
+  title: PASSWORD_HINT,
+  onInvalid: (e) => e.target.setCustomValidity(e.target.value ? PASSWORD_HINT : ""),
+  onInput: (e) => e.target.setCustomValidity(""),
+});
 
 /** 업로드 전 검증 (명세 16: extension + Content-Type 조합, 서버가 signature 까지 검증) */
 export function validateUpload(file) {

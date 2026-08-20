@@ -9,6 +9,7 @@
 const uuid = () =>
   crypto.randomUUID?.() ?? `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
 /* UTC → KST(+09:00) 로 오프셋을 실제로 더해서 만든다 (명세 1.1) */
+const MOCK_STORE_ID = uuid();
 const nowKst = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().replace("Z", "+09:00");
 
 export const state = {
@@ -17,7 +18,7 @@ export const state = {
     email: "user@example.com",
     name: "김민준",
     phone: "010-1234-5678",
-    provider: "KAKAO",
+    authProvider: "kakao",
     hasAvatar: true,
     createdAt: "2024-03-11T10:00:00+09:00",
   },
@@ -32,9 +33,9 @@ export const state = {
   ],
 
   cart: [
-    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), productName: "Stark Backpack", optionName: "Cognac / Medium", unitPrice: 1290000, quantity: 1, thumbnailFileId: null, inStock: true },
-    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), productName: "Aren Crossbody", optionName: "Black / One", unitPrice: 790000, quantity: 2, thumbnailFileId: null, inStock: true },
-    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), productName: "Visetos Card Wallet", optionName: "Brown / One", unitPrice: 390000, quantity: 1, thumbnailFileId: null, inStock: true },
+    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), name: "Stark Backpack", color: "Cognac", size: "Medium", unitPrice: 1290000, quantity: 1, thumbnailFileId: null, stock: 5 },
+    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), name: "Aren Crossbody", color: "Black", size: "One", unitPrice: 790000, quantity: 2, thumbnailFileId: null, stock: 3 },
+    { cartItemId: uuid(), productId: uuid(), variantId: uuid(), name: "Visetos Card Wallet", color: "Brown", size: "One", unitPrice: 390000, quantity: 1, thumbnailFileId: null, stock: 8 },
   ],
 
   orders: [
@@ -44,14 +45,14 @@ export const state = {
       paymentStatus: "success",
       paidAmount: 890000,
       paidAt: "2026-07-30T14:12:00+09:00",
-      items: [{ productName: "Visetos Tote", optionName: "Beige / One", unitPrice: 890000, quantity: 1, thumbnailFileId: null }],
+      items: [{ productName: "Visetos Tote", variant: { color: "Beige", size: "One" }, unitPrice: 890000, quantity: 1, thumbnailFileId: null }],
     },
   ],
 
   products: [
     {
       registrationId: uuid(),
-      productName: "Stark Backpack",
+      name: "Stark Backpack",
       serialNumber: "MCM-2024-8831",
       nickname: "출근용 백팩",
       source: "purchase",
@@ -62,7 +63,7 @@ export const state = {
     },
     {
       registrationId: uuid(),
-      productName: "Aren Crossbody",
+      name: "Aren Crossbody",
       serialNumber: "MCM-2023-4412",
       nickname: "데일리",
       source: "manual",
@@ -73,6 +74,9 @@ export const state = {
     },
   ],
 
+  tryOns: [
+    { tryOnId: uuid(), scope: "productOnly", resultFileId: null, provider: "mock", savedAt: "2026-08-18T10:00:00+09:00", createdAt: "2026-08-18T10:00:00+09:00" },
+  ],
   diagnoses: [],
   reservations: [],
   jobs: {},
@@ -80,8 +84,8 @@ export const state = {
 
 /* 진단 결과 샘플 — 명세 14. 응답 스키마 그대로 */
 const sampleDamages = [
-  { category: "abrasion", severity: 2, confidence: 0.88, location: "corner", boundingBox: null },
-  { category: "discoloration", severity: 1, confidence: 0.72, location: "front", boundingBox: null },
+  { damageType: "abrasion", severity: "medium", confidence: 0.88, location: "corner", boundingBox: null },
+  { damageType: "discoloration", severity: "low", confidence: 0.72, location: "front", boundingBox: null },
 ];
 
 export const mock = {
@@ -89,7 +93,21 @@ export const mock = {
   social: (provider) => issueTokens({ provider: provider.toUpperCase() }),
   signup: () => ({ userId: uuid() }),
   refresh: () => issueTokens(),
+  tryOns: () => ({ items: state.tryOns, nextCursor: null, hasNext: false, limit: 20 }),
+  deleteTryOn: (id) => {
+    state.tryOns = state.tryOns.filter((t) => t.tryOnId !== id);
+    return {};
+  },
+
   claim: () => ({ claimed: { coordis: 0, recentProducts: 2, tryOns: 1 } }),
+
+  guestSession: () => ({
+    guestToken: `mock.guest.${Date.now()}`,
+    guestSessionId: uuid(),
+    expiresAt: `${new Date().toISOString().slice(0, 10)}T23:59:59+09:00`,
+  }),
+  /** 로컬 카탈로그의 실제 품번 — ProductConfirm 이 findProduct 로 찾아 이미지까지 붙는다 */
+  recognize: () => ({ recognizedCode: "MWS 6SAF29 BG001", confidence: 0.97, product: null }),
 
   me: () => state.user,
   patchMe: (body) => Object.assign(state.user, body),
@@ -131,12 +149,13 @@ export const mock = {
       cartItemId: uuid(),
       productId: meta.productId ?? uuid(),
       variantId,
-      productName: meta.name ?? "담은 상품",
-      optionName: meta.optionName ?? "",
+      name: meta.name ?? "담은 상품",
+      color: meta.optionName ?? null,
+      size: null,
       unitPrice: meta.price ?? 0,
       quantity,
       thumbnailFileId: null,
-      inStock: true,
+      stock: 5,
     };
     state.cart.push(item);
     return item;
@@ -159,9 +178,9 @@ export const mock = {
       paymentStatus: "success",
       paidAmount: picked.reduce((s, i) => s + i.unitPrice * i.quantity, 0),
       paidAt: nowKst(),
-      items: picked.map(({ productName, optionName, unitPrice, quantity, thumbnailFileId }) => ({
-        productName,
-        optionName,
+      items: picked.map(({ name, color, size, unitPrice, quantity, thumbnailFileId }) => ({
+        productName: name,
+        variant: { color, size },
         unitPrice,
         quantity,
         thumbnailFileId,
@@ -173,7 +192,7 @@ export const mock = {
     picked.forEach((p) =>
       state.products.push({
         registrationId: uuid(),
-        productName: p.productName,
+        name: p.name,
         serialNumber: `MCM-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
         nickname: null,
         source: "purchase",
@@ -252,21 +271,18 @@ export const mock = {
   }),
 
   stores: (date) => ({
-    items: [
-      { storeId: uuid(), name: "MCM 청담 플래그십", address: "서울 강남구 도산대로", slots: slotsFor(date, [10, 11, 14, 16]) },
-      { storeId: uuid(), name: "MCM 롯데 본점", address: "서울 중구 남대문로", slots: slotsFor(date, [13, 15, 17]) },
+    stores: [
+      { storeId: MOCK_STORE_ID, name: "MCM 청담 플래그십", address: "서울 강남구 도산대로", availableSlots: slotsFor(date, [10, 11, 14, 16]) },
+      { storeId: uuid(), name: "MCM 롯데 본점", address: "서울 중구 남대문로", availableSlots: slotsFor(date, [13, 15, 17]) },
     ],
-    nextCursor: null,
-    hasNext: false,
-    limit: 20,
   }),
   createReservation: (body) => {
     const r = {
-      reservationId: uuid(),
-      storeName: body.storeName ?? "MCM 청담 플래그십",
+      repairReservationId: uuid(),
+      storeId: body.storeId ?? MOCK_STORE_ID,
       slot: body.slot,
       status: "confirmed",
-      memo: body.memo ?? "",
+      note: body.note ?? "",
       diagnosisId: body.diagnosisId ?? null,
     };
     state.reservations.unshift(r);
@@ -274,7 +290,7 @@ export const mock = {
   },
   reservations: () => ({ items: state.reservations, nextCursor: null, hasNext: false, limit: 20 }),
   patchReservation: (id, body) => {
-    const r = state.reservations.find((x) => x.reservationId === id);
+    const r = state.reservations.find((x) => x.repairReservationId === id);
     Object.assign(r, body);
     return r;
   },
