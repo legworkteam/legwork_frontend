@@ -26,6 +26,23 @@ export const signup = (body) => call(() => client.post("/auth/signup", body), mo
 export const login = (email, password) =>
   call(() => client.post("/auth/login", { email, password }), mock.login);
 
+/**
+ * 소셜 클라이언트 ID 가 없을 때 쓰는 데모 인가코드.
+ * 백엔드 /auth/social 은 Google/Kakao 프로필 fetch 를 mock 으로 처리하고
+ * authorizationCode 를 해시해 deterministic 프로필을 만든다 → 코드가 곧 계정 식별자다.
+ * 브라우저마다 다른 코드를 저장해 데모 방문자끼리 계정(장바구니·코디)이 섞이지 않게 한다.
+ * 하나의 공용 데모 계정을 쓰고 싶으면 이 함수가 고정 문자열을 반환하게 바꾸면 된다.
+ */
+const DEMO_CODE_KEY = "mcm-demo-oauth-code";
+export function demoAuthorizationCode() {
+  let code = localStorage.getItem(DEMO_CODE_KEY);
+  if (!code) {
+    code = `demo-${crypto.randomUUID?.() ?? `${Date.now().toString(16)}${Math.random().toString(16).slice(2)}`}`;
+    localStorage.setItem(DEMO_CODE_KEY, code);
+  }
+  return code;
+}
+
 /** provider: google | kakao — 인가 코드는 /oauth/callback 에서 받아 넘긴다 */
 export const socialLogin = (provider, authorizationCode) =>
   call(

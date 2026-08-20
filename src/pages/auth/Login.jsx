@@ -40,8 +40,8 @@ export default function Login() {
 
   /**
    * 클라이언트 ID 가 있으면 실제 카카오/구글 인가 페이지로 이동한다.
-   * (더미 모드여도 마찬가지 — 코드 교환만 mock 이 받으므로 동의 화면까지 실물로 확인 가능)
-   * 키가 아직 없을 때만 인가 페이지를 건너뛰고 더미 토큰을 발급한다.
+   * 없으면 인가 페이지를 건너뛰고 데모 코드로 바로 /auth/social 을 호출한다 —
+   * 백엔드가 프로필 fetch 를 mock 으로 처리하므로 실제 세션이 발급된다(키 없이도 전 화면 사용 가능).
    */
   const social = async (provider) => {
     setBusy(provider);
@@ -49,8 +49,7 @@ export default function Login() {
       if (api.isConfigured(provider)) {
         return api.startSocialLogin(provider, pending ? "/complete" : from); // 페이지 이동
       }
-      if (!api.USE_MOCK) throw new Error(`${provider} 클라이언트 ID가 설정되지 않았습니다.`);
-      await signIn(() => api.socialLogin(provider, "mock-authorization-code"));
+      await signIn(() => api.socialLogin(provider, api.demoAuthorizationCode()));
       done();
     } catch (e) {
       toastError(e);
