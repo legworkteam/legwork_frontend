@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import * as api from '@/api'
-import { useAuth } from '@/store'
+import { toastError, useAuth } from '@/store'
 import Header from '../../components/guest/Header'
 import BottomNav from '../../components/guest/BottomNav'
 import { NAV_TABS } from '../../components/guest/navTabs'
@@ -17,6 +17,8 @@ export default function AvatarCreate() {
   const [height, setHeight] = useState('')
   const [weight, setWeight] = useState('')
   const [gender, setGender] = useState('female')
+  const [busy, setBusy] = useState(false)
+  const [[minH, maxH], [minW, maxW]] = [api.AVATAR_LIMITS.heightCm, api.AVATAR_LIMITS.weightKg]
 
   // /fitting/avatar 는 PrivateRoute 를 안 거치는 GUEST 라우트라 로그인 상태여도
   // avatar 가 아직 안 불러와졌을 수 있음 — 여기서 직접 한 번 더 보장한다
@@ -34,14 +36,20 @@ export default function AvatarCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!height || !weight) return
+    if (!height || !weight || busy) return
     const heightCm = Number(height)
     const weightKg = Number(weight)
-    if (authed) {
-      await saveAvatar({ heightCm, weightKg, gender }).catch(() => null)
-    } else {
-      // 게스트도 세션에 남겨야 아바타 피팅이 표준 체형으로 떨어지지 않는다 (명세 4)
-      await api.putGuestAvatar({ heightCm, weightKg, gender }).catch(() => null)
+
+    // 저장에 실패하면 넘어가지 않는다 — 저장된 줄 알고 피팅까지 가면 표준 체형으로 나온다
+    setBusy(true)
+    try {
+      if (authed) await saveAvatar({ heightCm, weightKg, gender })
+      else await api.putGuestAvatar({ heightCm, weightKg, gender }) // 게스트는 세션에만 (명세 4)
+    } catch (err) {
+      toastError(err)
+      return
+    } finally {
+      setBusy(false)
     }
     navigate(`/coordi/${incomingProductId ?? 'avatar-demo'}`, { state: { height: heightCm, weight: weightKg, gender } })
   }
@@ -65,10 +73,12 @@ export default function AvatarCreate() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <label className="block">
-          <span className="text-sm text-ink/70">키 (cm)</span>
+          <span className="text-sm text-ink/70">키 (cm) · {minH}~{maxH}</span>
           <input
             type="number"
             required
+            min={minH}
+            max={maxH}
             value={height}
             onChange={(e) => setHeight(e.target.value)}
             className="mt-2 w-full border-b border-greige bg-transparent pb-2 text-base text-ink outline-none focus:border-ink"
@@ -76,10 +86,12 @@ export default function AvatarCreate() {
         </label>
 
         <label className="block">
-          <span className="text-sm text-ink/70">몸무게 (kg)</span>
+          <span className="text-sm text-ink/70">몸무게 (kg) · {minW}~{maxW}</span>
           <input
             type="number"
             required
+            min={minW}
+            max={maxW}
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
             className="mt-2 w-full border-b border-greige bg-transparent pb-2 text-base text-ink outline-none focus:border-ink"

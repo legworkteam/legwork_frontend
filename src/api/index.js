@@ -92,10 +92,34 @@ const guest = (fn) => async () => {
 export const isServerProduct = (id) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id ?? ""));
 
-/* ── 4. 게스트 신체정보 ──────────────────────────────── */
-/** 게스트는 세션에만 저장(명세 4). 로그인하면 /auth/claim 이 회원으로 옮긴다 */
+/* ── 4. 아바타 ───────────────────────────────────────── */
+/** 서버가 강제하는 범위 (초과 시 VALIDATION_ERROR) */
+export const AVATAR_LIMITS = { heightCm: [100, 230], weightKg: [30, 200] };
+
+const GUEST_AVATAR_KEY = "mcm-guest-avatar";
+
+/**
+ * 게스트 신체정보는 게스트 세션에만 저장된다.
+ * 서버에 조회 API 가 없고 /auth/claim 도 아바타는 옮겨주지 않으므로
+ * (claim 응답은 recentProductsClaimed 뿐), 로그인 후 회원 아바타로 승격시키려면
+ * 프론트가 값을 들고 있어야 한다.
+ */
 export const putGuestAvatar = (body) =>
-  call(guest(() => client.put("/guest-sessions/me/avatar-parameters", body)), () => body);
+  call(guest(() => client.put("/guest-sessions/me/avatar-parameters", body)), () => body).then((saved) => {
+    localStorage.setItem(GUEST_AVATAR_KEY, JSON.stringify(body));
+    return saved;
+  });
+
+/** 한 번 꺼내면 지운다 — 로그인 직후 1회만 승격한다 */
+export function takeGuestAvatar() {
+  try {
+    const raw = localStorage.getItem(GUEST_AVATAR_KEY);
+    localStorage.removeItem(GUEST_AVATAR_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 /* ── 5. 품번 사진 OCR ────────────────────────────────── */
 /** 사진 1장 → 서버가 OCR·정규화·상품조회까지 수행. 실패 코드: PRODUCT_CODE_NOT_DETECTED / _AMBIGUOUS / PRODUCT_NOT_FOUND */

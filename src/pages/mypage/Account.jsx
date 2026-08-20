@@ -64,10 +64,24 @@ export default function Account() {
         <p className="lbl mb-2.5">AVATAR — 명세 100~230cm / 30~200kg</p>
         <form onSubmit={saveAvatar} className="card">
           <Field label="키 (cm)">
-            <input name="heightCm" type="number" min={100} max={230} defaultValue={avatar?.heightCm ?? 170} required />
+            <input
+              name="heightCm"
+              type="number"
+              min={api.AVATAR_LIMITS.heightCm[0]}
+              max={api.AVATAR_LIMITS.heightCm[1]}
+              defaultValue={avatar?.heightCm ?? 170}
+              required
+            />
           </Field>
           <Field label="몸무게 (kg)">
-            <input name="weightKg" type="number" min={30} max={200} defaultValue={avatar?.weightKg ?? 60} required />
+            <input
+              name="weightKg"
+              type="number"
+              min={api.AVATAR_LIMITS.weightKg[0]}
+              max={api.AVATAR_LIMITS.weightKg[1]}
+              defaultValue={avatar?.weightKg ?? 60}
+              required
+            />
           </Field>
           <Field label="성별">
             <select name="gender" defaultValue={avatar?.gender ?? "neutral"}>

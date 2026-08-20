@@ -31,6 +31,11 @@ export const useAuth = create((set, get) => ({
     set({ authed: true });
     await get().loadMe();
 
+    // 게스트가 입력한 키/몸무게/성별을 회원 아바타로 승격.
+    // 회원에게 이미 아바타가 있으면 그쪽이 우선이고 게스트 값은 버린다.
+    const guestAvatar = api.takeGuestAvatar();
+    if (guestAvatar && !get().avatar) await get().saveAvatar(guestAvatar).catch(() => null);
+
     // 게스트 화면에서 setPending 으로 남겨둔 액션(예: 장바구니 담기)을 로그인 직후 실행
     await get().pending?.run?.().catch(() => null);
   },
